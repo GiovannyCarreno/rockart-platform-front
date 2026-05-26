@@ -1,4 +1,5 @@
 import { Copy, Download } from 'lucide-react';
+import { getGanModelLabel } from '../../constants/config';
 import GlassCard from '../ui/GlassCard';
 import SectionHeading from '../ui/SectionHeading';
 
@@ -11,17 +12,30 @@ export default function SingleImageResult({
 }) {
   return (
     <GlassCard className="!mb-0 mt-6">
-      <SectionHeading id="resultado-single">Resultado</SectionHeading>
+      <SectionHeading id="resultado-single">
+        {result.model ? `${getGanModelLabel(result.model)} generado` : 'Resultado'}
+      </SectionHeading>
       <div className="flex flex-col items-stretch gap-4 sm:items-center">
         <img
           src={`data:image/png;base64,${result.image}`}
-          alt="Imagen generada a partir del seed indicado"
+          alt={
+            result.model
+              ? `${getGanModelLabel(result.model)} generado a partir del seed indicado`
+              : 'Imagen generada a partir del seed indicado'
+          }
           className="mb-1 mx-auto block w-full max-w-lg rounded-xl border border-cream-300/80 shadow-[0_12px_40px_rgba(44,40,37,0.12)]"
         />
         <div className="mx-auto flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
-          <p className="rounded-xl border border-cream-300 bg-cream-200/60 px-4 py-2 text-center text-sm tabular-nums text-ink sm:text-base">
-            Seed: {result.seed}
-          </p>
+          <div className="flex flex-col gap-2">
+            <p className="rounded-xl border border-cream-300 bg-cream-200/60 px-4 py-2 text-center text-sm tabular-nums text-ink sm:text-base">
+              Seed: {result.seed}
+            </p>
+            {result.model && (
+              <p className="rounded-xl border border-cream-300 bg-cream-200/60 px-4 py-2 text-center text-sm text-ink sm:text-base">
+                Tipo: {getGanModelLabel(result.model)}
+              </p>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => onCopySeed(result.seed)}

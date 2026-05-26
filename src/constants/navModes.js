@@ -17,12 +17,12 @@ export const MODE_INSTRUCTIONS = {
   single: [
     'En pantallas pequeñas, abre el menú lateral con el botón de menú arriba a la izquierda; en escritorio puedes colapsar la barra con la flecha del panel.',
     'Introduce un seed o usa el botón de aleatorizar para fijar la variación que quieres generar.',
-    'Ajusta truncation PSI y noise mode según necesites y pulsa Generar imagen.',
+    'Elige si quieres generar pictogramas (pinturas rupestres) o petroglifos (figuras grabadas en roca), ajusta truncation PSI y noise mode, y pulsa Generar.',
     'Cuando termine la generación, revisa el resultado debajo de los controles; desde ahí puedes copiar el seed o descargar la imagen.',
   ],
   multiple: [
     'Usa el menú lateral para moverte entre pestañas (en móvil, icono de menú arriba a la izquierda).',
-    'Elige cuántas imágenes quieres (número de imágenes), ajusta truncation PSI y noise mode.',
+    'Elige cuántas imágenes quieres, el tipo (pictogramas o petroglifos), truncation PSI y noise mode.',
     'Pulsa Generar imágenes y espera a que finalice la petición.',
     'Las imágenes generadas aparecen en la zona inferior; puedes descargarlas o copiar seeds desde cada tarjeta.',
   ],
@@ -32,9 +32,9 @@ export const MODE_INSTRUCTIONS = {
     'Para ir a otra función de la app, elige otra opción en el menú lateral sin cerrar el navegador.',
   ],
   reconstruction: [
-    'Sube una imagen haciendo clic en el área punteada o arrastrando el archivo hasta la zona indicada (formatos: PNG, JPG, JPEG, BMP o WEBP).',
-    'Revisa la vista previa si aparece y pulsa Ejecutar reconstrucción.',
-    'Cuando lleguen los resultados de las imágenes de simulación y comparación; usa Descargar en cada bloque para guardar los PNG que necesites.',
+    'Indica si la imagen contiene pictogramas (pinturas rupestres) o petroglifos (figuras grabadas en roca).',
+    'Sube la imagen en el área punteada o arrástrala (PNG, JPG, JPEG, BMP o WEBP) y pulsa Reconstruir.',
+    'El backend segmenta con el modelo ONNX correspondiente a 256×256 y 512×512; revisa métricas, simulaciones y descarga los PNG.',
   ],
 };
 

@@ -1,3 +1,4 @@
+import { getGanModelResultHeading } from '../../constants/config';
 import ImageCard from '../ImageCard/ImageCard';
 import GlassCard from '../ui/GlassCard';
 import SectionHeading from '../ui/SectionHeading';
@@ -12,7 +13,7 @@ export default function MultipleImagesResult({
   return (
     <GlassCard className="!mb-0 mt-6">
       <SectionHeading id="resultado-multiple">
-        {results.number} imágenes generadas
+        {getGanModelResultHeading(results.number, results.model)}
       </SectionHeading>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {results.images.map((img, idx) => (

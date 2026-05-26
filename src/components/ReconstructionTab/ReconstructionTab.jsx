@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Download, Loader2, Upload } from 'lucide-react';
-import { compareModels } from '../../api/imageApi';
+import { compareSegmentationResolutions } from '../../api/imageApi';
+import {
+  DEFAULT_ONNX_MODEL,
+  getOnnxModelDescription,
+  getOnnxModelLabel,
+  ONNX_MODELS,
+} from '../../constants/config';
 import SectionHeading from '../ui/SectionHeading';
 
 function asDataUrl(base64Value) {
@@ -16,15 +22,24 @@ function downloadFromDataUrl(dataUrl, filename) {
   link.click();
 }
 
+const inputBase =
+  'w-full rounded-xl border border-cream-300 bg-cream-50 px-3 py-2.5 text-base text-ink shadow-inner shadow-cream-200/50 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25';
+
 const inputLabelClass = 'text-sm font-semibold text-ink';
 
 export default function ReconstructionTab() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [onnxModel, setOnnxModel] = useState(DEFAULT_ONNX_MODEL);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+
+  const resultTypeLabel = result?.model ? getOnnxModelLabel(result.model) : null;
+  const downloadPrefix = resultTypeLabel
+    ? resultTypeLabel.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '')
+    : 'reconstruccion';
 
   useEffect(() => {
     return () => {
@@ -37,8 +52,8 @@ export default function ReconstructionTab() {
   const imageResults = useMemo(
     () => ({
       comparacion: asDataUrl(result?.imagenes?.comparacion),
-      modelo1: asDataUrl(result?.imagenes?.simulacion_modelo_1),
-      modelo2: asDataUrl(result?.imagenes?.simulacion_modelo_2),
+      res256: asDataUrl(result?.imagenes?.simulacion_modelo_1),
+      res512: asDataUrl(result?.imagenes?.simulacion_modelo_2),
     }),
     [result]
   );
@@ -100,7 +115,7 @@ export default function ReconstructionTab() {
     setLoading(true);
     setError(null);
     try {
-      const data = await compareModels(selectedFile);
+      const data = await compareSegmentationResolutions(selectedFile, onnxModel);
       setResult(data);
     } catch (err) {
       setError(err.message || 'No se pudo completar la comparación.');
@@ -117,9 +132,34 @@ export default function ReconstructionTab() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-1 gap-4">
+      <p className="text-sm leading-relaxed text-ink-muted">
+        Sube una imagen, elige si se trata de pictogramas o petroglifos, y el backend segmentará con
+        ONNX a 256×256 y 512×512, simulando el resultado sobre roca.
+      </p>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <span className={inputLabelClass}>Imagen para comparar</span>
+          <label htmlFor="onnx-art-type" className={inputLabelClass}>
+            ¿Qué tipo de arte rupestre contiene la imagen?
+          </label>
+          <select
+            id="onnx-art-type"
+            value={onnxModel}
+            onChange={(e) => setOnnxModel(e.target.value)}
+            className={`${inputBase} cursor-pointer`}
+            disabled={loading}
+          >
+            {ONNX_MODELS.map(({ value, optionLabel }) => (
+              <option key={value} value={value}>
+                {optionLabel}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs leading-relaxed text-ink-muted">{getOnnxModelDescription(onnxModel)}</p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className={inputLabelClass}>Imagen para reconstruir</span>
           <label
             htmlFor="reconstruction-image"
             className={dropzoneClass}
@@ -161,7 +201,7 @@ export default function ReconstructionTab() {
         ) : (
           <>
             <Upload className="size-5" aria-hidden />
-            Ejecutar reconstrucción
+            Reconstruir {getOnnxModelLabel(onnxModel).toLowerCase()}
           </>
         )}
       </button>
@@ -190,24 +230,42 @@ export default function ReconstructionTab() {
 
       {result && (
         <div className="mt-1 space-y-6">
-          <SectionHeading as="h3">Resultados de comparación</SectionHeading>
+          <SectionHeading as="h3">
+            {resultTypeLabel
+              ? `Reconstrucción de ${resultTypeLabel.toLowerCase()} (256×256 vs 512×512)`
+              : 'Comparación ONNX (256×256 vs 512×512)'}
+          </SectionHeading>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {resultTypeLabel && (
+            <p className="text-sm text-ink-muted">
+              Segmentación ONNX para <strong className="font-semibold text-ink">{resultTypeLabel}</strong>
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl border border-cream-300 bg-cream-100/90 p-4 text-ink">
-              <p className="mb-1 text-sm text-ink-muted">Resolución 256×256 — cobertura</p>
+              <p className="mb-1 text-sm text-ink-muted">256×256 — cobertura</p>
               <strong className="text-lg tabular-nums text-ink">
                 {result.metricas?.cobertura_modelo_1?.toFixed?.(2) ?? '-'}%
               </strong>
             </div>
             <div className="rounded-xl border border-cream-300 bg-cream-100/90 p-4 text-ink">
-              <p className="mb-1 text-sm text-ink-muted">Resolución 512×512 — cobertura</p>
+              <p className="mb-1 text-sm text-ink-muted">512×512 — cobertura</p>
               <strong className="text-lg tabular-nums text-ink">
                 {result.metricas?.cobertura_modelo_2?.toFixed?.(2) ?? '-'}%
               </strong>
             </div>
-            <div className="rounded-xl border border-cream-300 bg-cream-100/90 p-4 text-ink sm:col-span-2 lg:col-span-1">
-              <p className="mb-1 text-sm text-ink-muted">Threshold</p>
-              <strong className="text-lg tabular-nums text-ink">{result.metricas?.threshold_modelo_1 ?? '-'}</strong>
+            <div className="rounded-xl border border-cream-300 bg-cream-100/90 p-4 text-ink">
+              <p className="mb-1 text-sm text-ink-muted">Threshold 256×256</p>
+              <strong className="text-lg tabular-nums text-ink">
+                {result.metricas?.threshold_modelo_1 ?? '-'}
+              </strong>
+            </div>
+            <div className="rounded-xl border border-cream-300 bg-cream-100/90 p-4 text-ink">
+              <p className="mb-1 text-sm text-ink-muted">Threshold 512×512</p>
+              <strong className="text-lg tabular-nums text-ink">
+                {result.metricas?.threshold_modelo_2 ?? '-'}
+              </strong>
             </div>
           </div>
 
@@ -222,20 +280,25 @@ export default function ReconstructionTab() {
                 />
               </article>
             )}
-            {imageResults.modelo1 && (
+            {imageResults.res256 && (
               <article className="rounded-xl border border-cream-300/80 bg-cream-50/90 p-3 sm:p-4">
-                <p className="mb-2 text-center text-sm font-medium text-ink-muted">Simulación — segmentado 256×256 px</p>
+                <p className="mb-2 text-center text-sm font-medium text-ink-muted">
+                  Simulación — 256×256
+                  {resultTypeLabel ? ` (${resultTypeLabel})` : ''}
+                </p>
                 <img
-                  src={imageResults.modelo1}
-                  alt="Simulación del modelo 1"
+                  src={imageResults.res256}
+                  alt={`Simulación ${resultTypeLabel ?? ''} a 256 por 256`.trim()}
                   className="aspect-square w-full object-contain bg-cream-200/50"
                 />
                 <div className="mt-3 flex justify-center">
                   <button
                     type="button"
                     className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-sage px-4 py-2 text-sm font-medium text-cream-50 transition hover:bg-sage-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
-                    onClick={() => downloadFromDataUrl(imageResults.modelo1, 'simulacion_modelo_1.png')}
-                    aria-label="Descargar simulación modelo 1 (PNG)"
+                    onClick={() =>
+                      downloadFromDataUrl(imageResults.res256, `${downloadPrefix}_256x256.png`)
+                    }
+                    aria-label="Descargar simulación 256×256 (PNG)"
                   >
                     <Download className="size-4 shrink-0" aria-hidden />
                     Descargar
@@ -243,20 +306,25 @@ export default function ReconstructionTab() {
                 </div>
               </article>
             )}
-            {imageResults.modelo2 && (
+            {imageResults.res512 && (
               <article className="rounded-xl border border-cream-300/80 bg-cream-50/90 p-3 sm:p-4">
-                <p className="mb-2 text-center text-sm font-medium text-ink-muted">Simulación — segmentado 512×512 px</p>
+                <p className="mb-2 text-center text-sm font-medium text-ink-muted">
+                  Simulación — 512×512
+                  {resultTypeLabel ? ` (${resultTypeLabel})` : ''}
+                </p>
                 <img
-                  src={imageResults.modelo2}
-                  alt="Simulación del modelo 2"
+                  src={imageResults.res512}
+                  alt={`Simulación ${resultTypeLabel ?? ''} a 512 por 512`.trim()}
                   className="aspect-square w-full object-contain bg-cream-200/50"
                 />
                 <div className="mt-3 flex justify-center">
                   <button
                     type="button"
                     className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg bg-sage px-4 py-2 text-sm font-medium text-cream-50 transition hover:bg-sage-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage"
-                    onClick={() => downloadFromDataUrl(imageResults.modelo2, 'simulacion_modelo_2.png')}
-                    aria-label="Descargar simulación modelo 2 (PNG)"
+                    onClick={() =>
+                      downloadFromDataUrl(imageResults.res512, `${downloadPrefix}_512x512.png`)
+                    }
+                    aria-label="Descargar simulación 512×512 (PNG)"
                   >
                     <Download className="size-4 shrink-0" aria-hidden />
                     Descargar
@@ -268,11 +336,14 @@ export default function ReconstructionTab() {
 
           {imageResults.comparacion && (
             <article className="w-full rounded-xl border border-cream-300/80 bg-cream-50/90 p-3 sm:p-4">
-              <p className="mb-3 text-center text-sm font-medium text-ink-muted">Comparación general</p>
+              <p className="mb-3 text-center text-sm font-medium text-ink-muted">
+                Comparación general (máscaras y simulaciones)
+                {resultTypeLabel ? ` — ${resultTypeLabel}` : ''}
+              </p>
               <div className="flex min-h-[min(55vh,520px)] w-full items-center justify-center rounded-lg border border-cream-200/90 bg-cream-200/45 p-2 sm:min-h-[min(60vh,640px)] sm:p-4">
                 <img
                   src={imageResults.comparacion}
-                  alt="Comparación de modelos"
+                  alt={`Comparación de resoluciones ONNX${resultTypeLabel ? ` para ${resultTypeLabel}` : ''}`}
                   className="h-auto max-h-[min(85vh,920px)] w-full object-contain"
                 />
               </div>

@@ -24,6 +24,8 @@ export default function App() {
     setTruncationPsi,
     noiseMode,
     setNoiseMode,
+    ganModel,
+    setGanModel,
     numberOfImages,
     setNumberOfImages,
     singleResult,
@@ -105,6 +107,8 @@ export default function App() {
                     onTruncationPsiChange={setTruncationPsi}
                     noiseMode={noiseMode}
                     onNoiseModeChange={setNoiseMode}
+                    ganModel={ganModel}
+                    onGanModelChange={setGanModel}
                     onGenerate={mode === 'single' ? handleGenerateSingle : handleGenerateMultiple}
                     loading={loading}
                     error={error}

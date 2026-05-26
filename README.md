@@ -6,6 +6,7 @@ Aplicación React para generar imágenes de **pinturas rupestres** usando un bac
 
 - **Generación de imagen individual**
   - Seed configurable (con botón de seed aleatoria).
+  - Tipo de generación: **pictogramas** (`pictos512`) o **petroglifos** (`pictos512_2`).
   - `truncation_psi` ajustable con slider (0.0–1.0, por defecto 0.6).
   - `noise_mode` seleccionable (`random`, `const`, `none`).
 
@@ -24,6 +25,7 @@ Aplicación React para generar imágenes de **pinturas rupestres** usando un bac
   - **Imagen individual**
   - **Múltiples imágenes**
   - **Restauración de pictogramas**: iframe a pantalla casi completa que embebe un editor de imágenes externo.
+  - **Reconstrucción**: sube una imagen, elige pictogramas o petroglifos, y compara segmentación ONNX a 256×256 y 512×512 (`POST /comparar`).
 
 ## Tecnologías
 
@@ -82,7 +84,7 @@ npm run lint
 ```text
 src/
 ├── api/
-│   └── imageApi.js          # Llamadas a la API (generateSingleImage, generateMultipleImages)
+│   └── imageApi.js          # Llamadas a la API (GAN + comparación ONNX /comparar)
 ├── components/
 │   ├── Header/
 │   │   └── Header.jsx
@@ -137,7 +139,8 @@ Asegúrate de que:
 
 ## Notas adicionales
 
-- El frontend asume que el backend devuelve:
-  - Para imagen individual: `{ image: <base64>, seed: <number>, ... }`.
-  - Para múltiples imágenes: `{ images: [<base64>...], seeds: [<number>...], number: <count> }`.
+- El frontend asume que el backend FastAPI (puerto 8000) expone:
+  - `POST /generateSingle` y `POST /generateSeveral` con campo `model`: `pictos512` (pictogramas) o `pictos512_2` (petroglifos).
+  - `POST /comparar` (multipart: `imagen` + `model`): `mejor_modelo_dinamico` (pictogramas) o `modelo_dinamico_gab` (petroglifos); responde con métricas y PNG en base64.
+- El dev server de Vite corre en el puerto **5174** (CORS del backend).
 - La paleta de colores está basada en tonos de azul (`#1e40af`, `#2563eb`, `#3b82f6`, `#60a5fa`).

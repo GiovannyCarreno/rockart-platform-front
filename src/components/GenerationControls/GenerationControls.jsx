@@ -1,4 +1,5 @@
 import { Loader2, Wand2, RefreshCw } from 'lucide-react';
+import { GAN_MODELS, getGanModelDescription, getGanModelGenerateLabel } from '../../constants/config';
 
 const inputBase =
   'w-full rounded-xl border border-cream-300 bg-cream-50 px-3 py-2.5 text-base text-ink shadow-inner shadow-cream-200/50 placeholder:text-ink-muted/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25';
@@ -15,13 +16,15 @@ export default function GenerationControls({
   onTruncationPsiChange,
   noiseMode,
   onNoiseModeChange,
+  ganModel,
+  onGanModelChange,
   onGenerate,
   loading,
   error,
 }) {
   return (
     <div className="space-y-6">
-      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3 md:gap-x-6">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-x-6">
         {mode === 'single' && (
           <div className="flex min-w-0 w-full flex-col gap-2">
             <label htmlFor="seed-input" className="text-sm font-semibold text-ink">
@@ -99,6 +102,25 @@ export default function GenerationControls({
             <option value="none">None</option>
           </select>
         </div>
+
+        <div className="flex min-w-0 w-full flex-col gap-2 sm:col-span-2 lg:col-span-1">
+          <label htmlFor="gan-model" className="text-sm font-semibold text-ink">
+            ¿Qué quieres generar?
+          </label>
+          <select
+            id="gan-model"
+            value={ganModel}
+            onChange={(e) => onGanModelChange(e.target.value)}
+            className={`${inputBase} w-full min-w-0 cursor-pointer`}
+          >
+            {GAN_MODELS.map(({ value, optionLabel }) => (
+              <option key={value} value={value}>
+                {optionLabel}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs leading-relaxed text-ink-muted">{getGanModelDescription(ganModel)}</p>
+        </div>
       </div>
 
       <button
@@ -116,7 +138,7 @@ export default function GenerationControls({
         ) : (
           <>
             <Wand2 className="size-5" aria-hidden />
-            Generar {mode === 'single' ? 'imagen' : 'imágenes'}
+            {getGanModelGenerateLabel(ganModel, mode)}
           </>
         )}
       </button>
