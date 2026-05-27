@@ -66,5 +66,22 @@ export async function compareSegmentationResolutions(imageFile, model) {
   return response.json();
 }
 
+/** Clasifica una imagen entre pictogramas y petroglifos (`POST /clasificar`). */
+export async function classifyImage(imageFile) {
+  const formData = new FormData();
+  formData.append('imagen', imageFile);
+
+  const response = await fetch(`${API_URL}/clasificar`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseErrorResponse(response, 'Error al clasificar la imagen'));
+  }
+
+  return response.json();
+}
+
 /** @deprecated Usa compareSegmentationResolutions */
 export const compareModels = compareSegmentationResolutions;

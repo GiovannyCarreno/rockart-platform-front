@@ -26,6 +26,7 @@ Aplicación React para generar imágenes de **pinturas rupestres** usando un bac
   - **Múltiples imágenes**
   - **Restauración de pictogramas**: iframe a pantalla casi completa que embebe un editor de imágenes externo.
   - **Reconstrucción**: sube una imagen, elige pictogramas o petroglifos, y compara segmentación ONNX a 256×256 y 512×512 (`POST /comparar`).
+  - **Clasificación**: sube una imagen y el modelo predice si es pictograma o petroglifo (`POST /clasificar`).
 
 ## Tecnologías
 
@@ -142,5 +143,6 @@ Asegúrate de que:
 - El frontend asume que el backend FastAPI (puerto 8000) expone:
   - `POST /generateSingle` y `POST /generateSeveral` con campo `model`: `pictos512` (pictogramas) o `pictos512_2` (petroglifos).
   - `POST /comparar` (multipart: `imagen` + `model`): `mejor_modelo_dinamico` (pictogramas) o `modelo_dinamico_gab` (petroglifos); responde con métricas y PNG en base64.
+  - `POST /clasificar` (multipart: `imagen`): devuelve clase, confianza y probabilidades.
 - El dev server de Vite corre en el puerto **5174** (CORS del backend).
 - La paleta de colores está basada en tonos de azul (`#1e40af`, `#2563eb`, `#3b82f6`, `#60a5fa`).

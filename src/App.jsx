@@ -6,6 +6,7 @@ import SingleImageResult from './components/SingleImageResult/SingleImageResult'
 import MultipleImagesResult from './components/MultipleImagesResult/MultipleImagesResult';
 import RestorationEditor from './components/RestorationEditor/RestorationEditor';
 import ReconstructionTab from './components/ReconstructionTab/ReconstructionTab';
+import ClassificationTab from './components/ClassificationTab/ClassificationTab';
 import GlassCard from './components/ui/GlassCard';
 import TabInstructions from './components/TabInstructions/TabInstructions';
 import { useImageGenerator } from './hooks/useImageGenerator';
@@ -41,6 +42,7 @@ export default function App() {
   } = useImageGenerator();
 
   const cardVariant = mode === 'restoration' ? 'restoration' : 'default';
+  const isToolTab = mode === 'restoration' || mode === 'reconstruction' || mode === 'classification';
 
   useEffect(() => {
     if (!mobileNavOpen) return undefined;
@@ -94,7 +96,7 @@ export default function App() {
             <div key={mode} className="animate-main-enter mb-6 sm:mb-8 md:mb-10">
               <TabInstructions mode={mode} />
               <GlassCard variant={cardVariant}>
-                {mode !== 'restoration' && mode !== 'reconstruction' && (
+                {!isToolTab && (
                   <GenerationControls
                     mode={mode}
                     seedInput={seedInput}
@@ -117,10 +119,11 @@ export default function App() {
 
                 {mode === 'restoration' && <RestorationEditor />}
                 {mode === 'reconstruction' && <ReconstructionTab />}
+                {mode === 'classification' && <ClassificationTab />}
               </GlassCard>
             </div>
 
-            {mode !== 'restoration' && mode !== 'reconstruction' && singleResult && (
+            {!isToolTab && singleResult && (
               <div key={`single-${singleResult.seed}`} className="animate-main-enter">
                 <SingleImageResult
                   result={singleResult}
@@ -132,7 +135,7 @@ export default function App() {
               </div>
             )}
 
-            {mode !== 'restoration' && mode !== 'reconstruction' && multipleResults && (
+            {!isToolTab && multipleResults && (
               <div key={`multi-${multipleResults.images?.length}`} className="animate-main-enter">
                 <MultipleImagesResult
                   results={multipleResults}

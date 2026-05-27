@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { Wand2, Grid3x3, Paintbrush, RefreshCw, ChevronsLeft, ChevronsRight, X } from 'lucide-react';
+import { Wand2, Grid3x3, Paintbrush, RefreshCw, ScanSearch, ChevronsLeft, ChevronsRight, X } from 'lucide-react';
 import { MODE_LABELS } from '../../constants/navModes';
 import { LOGO_SRC } from '../../constants/config';
 
@@ -8,6 +8,7 @@ const items = [
   { id: 'multiple', icon: Grid3x3 },
   { id: 'restoration', icon: Paintbrush },
   { id: 'reconstruction', icon: RefreshCw },
+  { id: 'classification', icon: ScanSearch },
 ];
 
 const linkClass =

@@ -6,6 +6,7 @@ export const MODE_LABELS = {
   multiple: 'Múltiples imágenes',
   restoration: 'Restauración de pictogramas',
   reconstruction: 'Reconstrucción',
+  classification: 'Clasificación',
 };
 
 export function getModeLabel(mode) {
@@ -35,6 +36,11 @@ export const MODE_INSTRUCTIONS = {
     'Indica si la imagen contiene pictogramas (pinturas rupestres) o petroglifos (figuras grabadas en roca).',
     'Sube la imagen en el área punteada o arrástrala (PNG, JPG, JPEG, BMP o WEBP) y pulsa Reconstruir.',
     'El backend segmenta con el modelo ONNX correspondiente a 256×256 y 512×512; revisa métricas, simulaciones y descarga los PNG.',
+  ],
+  classification: [
+    'Sube una imagen de arte rupestre en el área punteada o arrástrala (PNG, JPG, JPEG, BMP o WEBP).',
+    'Pulsa Clasificar imagen: el modelo distinguirá entre pictograma y petroglifo.',
+    'Revisa la clase predicha, el porcentaje de confianza y las probabilidades de cada categoría.',
   ],
 };
 
