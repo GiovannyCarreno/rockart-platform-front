@@ -121,22 +121,42 @@ El estado de la pestaña activa se maneja con `mode` en el hook `useImageGenerat
 - `'multiple'`: múltiples imágenes.
 - `'restoration'`: muestra solo el editor de restauración en un iframe a máximo tamaño posible, manteniendo el mismo diseño del resto (header, card, fondo).
 
-## Uso con Docker
+## Uso con Docker (contenedor unificado)
 
-Puedes construir y ejecutar este frontend en un contenedor Docker:
+Un solo contenedor reemplaza los tres Dockerfiles anteriores de este proyecto:
+
+| Puerto | Servicio |
+|--------|----------|
+| **5174** | App principal |
+| **5173** | Editor IOPaint (`web_app_lama`) |
+| **8080** | API IOPaint (`web_app_lama/docker back-end`) |
 
 ```bash
-# Build de la imagen
-docker build -t generator_front .
+# Desde la raíz de pic-generator-front (usa Dockerfile con D mayúscula)
+docker compose up --build
 
-# Ejecutar el contenedor
-docker run -d -p 5174:5174 --name generator_front_container generator_front
+# O manualmente (GPU recomendada para IOPaint)
+docker build --no-cache -t pic-generator-stack .
+docker run --gpus all -p 5174:5174 -p 5173:5173 -p 8080:8080 pic-generator-stack
 ```
 
-Asegúrate de que:
+> Si ves `npm error Missing script: "start"`, estás ejecutando una **imagen vieja** (el Dockerfile antiguo usaba `CMD ["npm","start"]`). La imagen correcta arranca con `/app/start.sh` y muestra logs como `Iniciando API IOPaint en :8080...`.
+>
+> Limpia y reconstruye:
+>
+> ```bash
+> docker compose down
+> docker rmi pic-generator-stack:latest -f
+> docker compose build --no-cache
+> docker compose up
+> ```
+>
+> Comprueba el comando de la imagen: `docker inspect pic-generator-stack:latest --format "{{.Config.Cmd}}"`  
+> Debe salir: `[/bin/bash /app/start.sh]`
 
-- El puerto expuesto dentro del contenedor (en la imagen) coincida con el que sirve Vite/tu servidor de producción.
-- `EDITOR_URL` apunte a un host accesible desde el navegador (por ejemplo `http://localhost:5173` si el editor corre fuera del contenedor).
+Abre **http://localhost:5174**.
+
+La API **GAN** (`pic-generator-back`, puerto **8000**) no forma parte de esta imagen: debe estar en ejecución aparte (local o en su propio contenedor) para generación, reconstrucción y clasificación.
 
 ## Notas adicionales
 

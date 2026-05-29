@@ -1,0 +1,28 @@
+services:
+  pic-generator-front:
+    image: pic-generator-stack:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_EDITOR_URL: http://localhost:5173
+        VITE_BACKEND: http://localhost:8080
+    entrypoint: ["/bin/bash"]
+    command: ["/app/start.sh"]
+    ports:
+      - "5174:5174"
+      - "5173:5173"
+      - "8080:8080"
+    volumes:
+      - iopaint-cache:/root/.cache
+    # Descomenta si tienes NVIDIA Container Toolkit
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  iopaint-cache:

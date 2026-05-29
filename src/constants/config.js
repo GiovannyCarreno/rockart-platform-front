@@ -1,5 +1,7 @@
-export const API_URL = 'http://localhost:8000';
-export const EDITOR_URL = 'http://localhost:5173'; // Editor de imágenes (ajustar puerto si tu editor usa otro)
+/** API GAN externa (pic-generator-back, fuera de este repo). */
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
+/** Editor IOPaint embebido (incluido en el contenedor unificado, :5173). */
+export const EDITOR_URL = import.meta.env.VITE_EDITOR_URL ?? 'http://localhost:5173';
 
 /** Logo estático servido desde `public/logo/` (Vite). */
 export const LOGO_SRC = '/logo/logo.png';

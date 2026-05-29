@@ -1,1 +1,12 @@
 node_modules
+dist
+.git
+.gitignore
+
+web_app_lama/node_modules
+web_app_lama/dist
+web_app_lama/.git
+
+**/__pycache__
+**/.venv
+**/.pytest_cache
