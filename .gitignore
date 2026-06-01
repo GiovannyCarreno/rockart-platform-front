@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# web_app_lama (carpeta del editor IOPaint, ya no es submódulo)
+web_app_lama/node_modules
+web_app_lama/dist
+web_app_lama/.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
