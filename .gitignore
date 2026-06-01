@@ -17,6 +17,9 @@ web_app_lama/node_modules
 web_app_lama/dist
 web_app_lama/.env
 
+# Entorno virtual IOPaint (desarrollo local)
+.venv-iopaint
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

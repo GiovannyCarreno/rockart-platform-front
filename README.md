@@ -30,7 +30,7 @@ Aplicación React para **generar**, **restaurar**, **reconstruir** y **clasifica
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  pic-generator-front (este repo)                            │
+│  rockart-platform-front (este repo)                         │
 │  ┌──────────────┐  ┌─────────────────────────────────────┐  │
 │  │ App principal│  │ web_app_lama/                       │  │
 │  │  :5174       │  │  Editor UI :5173  +  IOPaint :8080  │  │
@@ -38,20 +38,20 @@ Aplicación React para **generar**, **restaurar**, **reconstruir** y **clasifica
 └─────────┼───────────────────────────────────────────────────┘
           │ API REST
           ▼
-┌─────────────────────┐
-│ pic-generator-back  │  ← repositorio/servicio aparte
-│ FastAPI  :8000      │
-└─────────────────────┘
+┌───────────────────────┐
+│ rockart-platform-back │  ← repositorio/servicio aparte
+│ FastAPI  :8000        │
+└───────────────────────┘
 ```
 
 | Servicio | Puerto | Dónde corre |
 |----------|--------|-------------|
 | App principal | **5174** | Este proyecto |
-| Editor IOPaint (UI) | **5173** | `web_app_lama/` |
+| Editor IOPaint (UI) | **5173** | `web_app_lama/`aa |
 | API IOPaint (inpainting) | **8080** | `web_app_lama/docker back-end` |
-| API GAN / ONNX / clasificación | **8000** | `pic-generator-back` (externo) |
+| API GAN / ONNX / clasificación | **8000** | `rockart-platform-back (externo) |  
 
-## Tecnologías
+## Tecnologíaaas
 
 - **React 19** + **React Compiler**
 - **Vite 7**
@@ -63,10 +63,10 @@ Aplicación React para **generar**, **restaurar**, **reconstruir** y **clasifica
 
 ### Desarrollo local
 
-- Node.js LTS
+- ``Node.js LTS
 - npm
-- **pic-generator-back** en `http://localhost:8000` (generación, reconstrucción, clasificación)
-- Para restauración: editor en `:5173` y API IOPaint en `:8080`
+- **rckart-platform-back** en `http://localhost:8000` (generació  n, reconstrucción, clasificación)
+- Para restauración: editor en `:5173` y API IOPaint en `:8080```
 
 ### Docker
 
@@ -79,10 +79,10 @@ Aplicación React para **generar**, **restaurar**, **reconstruir** y **clasifica
 Variables en `src/constants/config.js` (sobreescribibles en build con Vite):
 
 ```js
-// Desarrollo (valores por defecto)
-VITE_API_URL=http://localhost:8000      // pic-generator-back
-VITE_EDITOR_URL=http://localhost:5173     // web_app_lama (UI)
-```
+//`` Desarrollo (valores por defecto)
+VITE_API_URL=http://localhost:8000     // rockart-platform-back
+VIT  E_EDITOR_URL=http://localhost:5173     // web_app_lama (UI)
+`````
 
 En `web_app_lama/.env`:
 
@@ -92,22 +92,98 @@ VITE_BACKEND=http://127.0.0.1:8080        // API IOPaint
 
 ## Desarrollo local
 
+Necesitas **cuatro procesos** en paralelo (cada uno en su propia terminal).
+
+### 1. App principal
+
 ```bash
-# 1. App principal
 npm install
 npm run dev          # http://localhost:5174
+```
 
-# 2. Editor IOPaint (otra terminal)
+### 2. Editor IOPaint (UI)
+
+```bash
 cd web_app_lama
 npm install
+```
+
+Crea o revisa `web_app_lama/.env`:
+
+```env
+VITE_BACKEND=http://127.0.0.1:8080
+```
+
+```bash
 npm run dev          # http://localhost:5173
+```
 
-# 3. API IOPaint (otra terminal, con GPU si está disponible)
-iopaint start --model=lama --port=8080
+### 3. API IOPaint (Python, entorno virtual recomendado)
 
-# 4. Backend GAN (repositorio pic-generator-back)
+IOPaint es el backend de inpainting que usa el editor. Conviene instalarlo en un **entorno virtual** para no mezclar dependencias con el resto del sistema.
+
+**Windows (PowerShell):**
+
+```powershell
+# Desde la raíz de rockart-platform-front (o cualquier carpeta dedicada)
+python -m venv .venv-iopaint
+.\.venv-iopaint\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv-iopaint
+source .venv-iopaint/bin/activate
+python -m pip install --upgrade pip
+```
+
+**Instalar PyTorch e IOPaint**
+
+Con **GPU NVIDIA** (CUDA 11.8, alineado con el Dockerfile del proyecto):
+
+```bash
+pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu118
+pip install iopaint
+```
+
+Solo **CPU** (más lento; útil si no tienes GPU):
+
+```bash
+pip install torch torchvision
+pip install iopaint
+```
+
+**Arrancar el servidor** (con el venv activado):
+
+```bash
+# GPU
+iopaint start --model=lama --device=cuda --host=0.0.0.0 --port=8080
+
+# CPU
+iopaint start --model=lama --device=cpu --host=0.0.0.0 --port=8080
+```
+
+Comprueba que responde en **http://localhost:8080**. La primera ejecución puede tardar mientras descarga pesos del modelo LaMa.
+
+> **Nota:** Añade `.venv-iopaint/` al `.gitignore` si creas el entorno dentro del repo. Para desactivar el venv: `deactivate`.
+
+### 4. Backend GAN (`rockart-platform-back`)
+
+Repositorio aparte. En su carpeta, con el entorno que uses allí:
+
+```bash
 uvicorn service:app --host 0.0.0.0 --port 8000
 ```
+
+Servicios necesarios para las pestañas:
+
+| Pestaña | Servicios requeridos |
+|---------|----------------------|
+| Imagen individual / Múltiples | `:8000` |
+| Restauración | `:5173` + `:8080` |
+| Reconstrucción / Clasificación | `:8000` |
 
 ### Scripts (raíz)
 
@@ -119,11 +195,11 @@ npm run preview   # Vista previa del build
 npm run lint      # ESLint
 ```
 
-## Docker (contenedor unificado)
+## Docker (contenedor unificado  )
 
-Un solo contenedor incluye la app principal, el editor IOPaint y su API. **No incluye** `pic-generator-back` (:8000).
+Un solo contenedor incluye la app principal, el editor IOPaint y su API. **No incluye** `rockart-platform-back (:8000).  
 
-| Puerto | Servicio |
+| Puerto | Servicio   |
 |--------|----------|
 | **5174** | App principal |
 | **5173** | Editor IOPaint (UI) |
@@ -131,11 +207,11 @@ Un solo contenedor incluye la app principal, el editor IOPaint y su API. **No in
 
 ```bash
 docker compose up --build
-```
+``aa`
 
-Abre **http://localhost:5174**. Para generación, reconstrucción y clasificación, levanta **pic-generator-back** aparte en el puerto 8000.
+Abre **http://localhost:5174**. Para generación, reconstrucción y clasificación, levanta **rockart-platform-back* aparte en el puerto 8000.  
 
-### Build manual
+### Build manuaaal
 
 ```bash
 docker build -t pic-generator-stack .
@@ -160,9 +236,13 @@ docker inspect pic-generator-stack:latest --format "{{.Config.Cmd}}"
 # Debe ser: [/bin/bash /app/start.sh]
 ```
 
-Al arrancar bien verás: `Iniciando API IOPaint en :8080...`, `Iniciando app principal en :5174...`, etc.
+Al arrancar bien verás: `Iniciando API IOPaint en :8080...`, `Iniciando app principal en :5174...`, etc
 
-## API del backend externo (`pic-generator-back`)
+.
+
+# API del backend externo (`rockart-platform-back`)
+  
+
 
 El frontend consume estos endpoints en `API_URL` (por defecto `:8000`):
 
@@ -187,7 +267,7 @@ El backend debe tener CORS habilitado para `http://localhost:5174`.
 ## Estructura del proyecto
 
 ```text
-pic-generator-front/
+rockart-platform-front/
 ├── Dockerfile                 # Imagen unificada (app + IOPaint)
 ├── docker-compose.yml
 ├── docker/
@@ -195,10 +275,10 @@ pic-generator-front/
 ├── public/
 │   └── logo/
 ├── src/
-│   ├── api/
-│   │   └── imageApi.js        # Llamadas a pic-generator-back
-│   ├── components/
-│   │   ├── AppTopBar/
+│   ├── ap──i/
+│   │   └── mageApi.js        # Llamadas a rockart-platform-back
+│   ├── comp  onents/
+│   │   ├──── AppTopBar/
 │   │   ├── ClassificationTab/
 │   │   ├── GenerationControls/
 │   │   ├── ImageCard/
