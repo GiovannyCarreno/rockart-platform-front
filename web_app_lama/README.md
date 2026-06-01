@@ -79,10 +79,3 @@ Si en desarrollo funciona pero en Docker/producción falla, casi siempre es porq
 Este frontend incluye implementaciones/ideas basadas en:
 
 - **IOPaint**: `https://github.com/Sanster/IOPaint?tab=readme-ov-file`
-
-## Contacto
-
-- **Nombre**: Giovanny Carreño  
-- **Correo**: `hernan.carreno@uptc.edu.co`  
-- **Institución**: Universidad Pedagógica y Tecnológica de Colombia  
-- **Semillero**: Semillero de investigación GALASH
