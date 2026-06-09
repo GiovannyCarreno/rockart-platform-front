@@ -173,3 +173,7 @@ rockart-platform-front/
 ## Creditos
 
 - StyleGAN2-ADA-PyTorch: generacion GAN.
+
+## Link repositorio del backend
+
+- https://github.com/GiovannyCarreno/rockart-platform-back
