@@ -1,311 +1,175 @@
-# Arte rupestre — Panel de herramientas (Frontend)
+# Arte rupestre - Frontends
 
-Aplicación React para **generar**, **restaurar**, **reconstruir** y **clasificar** imágenes de arte rupestre (pictogramas y petroglifos). Incluye el editor [IOPaint](https://github.com/Sanster/IOPaint) (`web_app_lama`) integrado como carpeta del proyecto.
+Aplicacion React para generar, restaurar, reconstruir y clasificar imagenes de arte rupestre. Este repositorio contiene dos proyectos frontend:
+
+- App principal en la raiz del repo.
+- Editor frontend en `web_app_lama/`.
+
+El backend de generacion, reconstruccion y clasificacion corre aparte, por defecto en `http://localhost:8000`.
 
 ## Pestañas
 
-| Pestaña | Descripción |
+| Pestaña | Descripcion |
 |---------|-------------|
-| **Imagen individual** | Genera un pictograma o petroglifo con seed, truncation PSI y noise mode. |
-| **Múltiples imágenes** | Genera de 1 a 10 imágenes con seeds aleatorios. |
-| **Restauración de pictogramas** | Editor IOPaint embebido (inpainting con LaMa). |
-| **Reconstrucción** | Segmentación ONNX a 256×256 y 512×512 con simulación sobre roca. |
-| **Clasificación** | Predice si la imagen es pictograma o petroglifo con nivel de confianza. |
+| Imagen individual | Genera un pictograma o petroglifo con seed, truncation PSI y noise mode. |
+| Multiples imagenes | Genera de 1 a 10 imagenes con seeds aleatorios. |
+| Restauracion de pictogramas | Abre el editor frontend embebido. |
+| Reconstruccion | Segmentacion ONNX a 256x256 y 512x512 con simulacion sobre roca. |
+| Clasificacion | Predice si la imagen es pictograma o petroglifo con nivel de confianza. |
 
-### Generación GAN
+## Servicios
 
-- Tipo: **pictogramas** (`pictos512`) o **petroglifos** (`pictos512_2`).
-- Seed configurable (con aleatorización).
-- `truncation_psi` (0.0–1.0, por defecto 0.6).
-- `noise_mode`: `random`, `const`, `none`.
-- Descarga PNG con metadatos: `rock-art_seed{seed}_psi{psi}_{noiseMode}.png`.
+| Servicio | Puerto | Ubicacion |
+|----------|--------|-----------|
+| App principal | `5174` | Raiz del proyecto |
+| Editor frontend | `5173` | `web_app_lama/` |
+| API GAN / ONNX / clasificacion | `8000` | `rockart-platform-back` externo |
 
-### Reconstrucción y clasificación
+## Tecnologias
 
-- Carga de imagen por clic o arrastrar (PNG, JPG, JPEG, BMP, WEBP).
-- Reconstrucción: elige pictogramas o petroglifos; compara cobertura, umbrales y simulaciones por resolución.
-- Clasificación: muestra clase predicha, confianza y barras de probabilidad.
+- React
+- Vite
+- Tailwind CSS
+- lucide-react
 
-## Arquitectura y servicios
+## Configuracion
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  rockart-platform-front (este repo)                         │
-│  ┌──────────────┐  ┌─────────────────────────────────────┐  │
-│  │ App principal│  │ web_app_lama/                       │  │
-│  │  :5174       │  │  Editor UI :5173  +  IOPaint :8080  │  │
-│  └──────┬───────┘  └─────────────────────────────────────┘  │
-└─────────┼───────────────────────────────────────────────────┘
-          │ API REST
-          ▼
-┌───────────────────────┐
-│ rockart-platform-back │  ← repositorio/servicio aparte
-│ FastAPI  :8000        │
-└───────────────────────┘
-```
-
-| Servicio | Puerto | Dónde corre |
-|----------|--------|-------------|
-| App principal | **5174** | Este proyecto |
-| Editor IOPaint (UI) | **5173** | `web_app_lama/`aa |
-| API IOPaint (inpainting) | **8080** | `web_app_lama/docker back-end` |
-| API GAN / ONNX / clasificación | **8000** | `rockart-platform-back (externo) |  
-
-## Tecnologíaaas
-
-- **React 19** + **React Compiler**
-- **Vite 7**
-- **Tailwind CSS 4**
-- **lucide-react**
-- **IOPaint** (editor en `web_app_lama/`, basado en LaMa)
-
-## Requisitos previos
-
-### Desarrollo local
-
-- ``Node.js LTS
-- npm
-- **rckart-platform-back** en `http://localhost:8000` (generació  n, reconstrucción, clasificación)
-- Para restauración: editor en `:5173` y API IOPaint en `:8080```
-
-### Docker
-
-- Docker y Docker Compose
-- GPU NVIDIA recomendada (IOPaint con CUDA)
-- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) si usas `--gpus all`
-
-## Configuración
-
-Variables en `src/constants/config.js` (sobreescribibles en build con Vite):
-
-```js
-//`` Desarrollo (valores por defecto)
-VITE_API_URL=http://localhost:8000     // rockart-platform-back
-VIT  E_EDITOR_URL=http://localhost:5173     // web_app_lama (UI)
-`````
-
-En `web_app_lama/.env`:
+La app principal usa estas variables de Vite:
 
 ```env
-VITE_BACKEND=http://127.0.0.1:8080        // API IOPaint
+VITE_API_URL=http://localhost:8000
+VITE_EDITOR_URL=http://localhost:5173
 ```
+
+`VITE_API_URL` apunta al backend externo. `VITE_EDITOR_URL` apunta al segundo frontend.
 
 ## Desarrollo local
 
-Necesitas **cuatro procesos** en paralelo (cada uno en su propia terminal).
-
-### 1. App principal
+Ejecuta la app principal:
 
 ```bash
 npm install
-npm run dev          # http://localhost:5174
+npm run dev
 ```
 
-### 2. Editor IOPaint (UI)
+La app principal queda disponible en:
+
+```text
+http://localhost:5174
+```
+
+Ejecuta el editor frontend:
 
 ```bash
 cd web_app_lama
 npm install
+npm run dev
 ```
 
-Crea o revisa `web_app_lama/.env`:
+El editor frontend queda disponible en:
 
-```env
-VITE_BACKEND=http://127.0.0.1:8080
+```text
+http://localhost:5173
 ```
 
-```bash
-npm run dev          # http://localhost:5173
-```
-
-### 3. API IOPaint (Python, entorno virtual recomendado)
-
-IOPaint es el backend de inpainting que usa el editor. Conviene instalarlo en un **entorno virtual** para no mezclar dependencias con el resto del sistema.
-
-**Windows (PowerShell):**
-
-```powershell
-# Desde la raíz de rockart-platform-front (o cualquier carpeta dedicada)
-python -m venv .venv-iopaint
-.\.venv-iopaint\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-```
-
-**Linux / macOS:**
-
-```bash
-python3 -m venv .venv-iopaint
-source .venv-iopaint/bin/activate
-python -m pip install --upgrade pip
-```
-
-**Instalar PyTorch e IOPaint**
-
-Con **GPU NVIDIA** (CUDA 11.8, alineado con el Dockerfile del proyecto):
-
-```bash
-pip install torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cu118
-pip install iopaint
-```
-
-Solo **CPU** (más lento; útil si no tienes GPU):
-
-```bash
-pip install torch torchvision
-pip install iopaint
-```
-
-**Arrancar el servidor** (con el venv activado):
-
-```bash
-# GPU
-iopaint start --model=lama --device=cuda --host=0.0.0.0 --port=8080
-
-# CPU
-iopaint start --model=lama --device=cpu --host=0.0.0.0 --port=8080
-```
-
-Comprueba que responde en **http://localhost:8080**. La primera ejecución puede tardar mientras descarga pesos del modelo LaMa.
-
-> **Nota:** Añade `.venv-iopaint/` al `.gitignore` si creas el entorno dentro del repo. Para desactivar el venv: `deactivate`.
-
-### 4. Backend GAN (`rockart-platform-back`)
-
-Repositorio aparte. En su carpeta, con el entorno que uses allí:
+Levanta el backend externo en su propio repositorio:
 
 ```bash
 uvicorn service:app --host 0.0.0.0 --port 8000
 ```
 
-Servicios necesarios para las pestañas:
+Servicios necesarios por pestaña:
 
 | Pestaña | Servicios requeridos |
 |---------|----------------------|
-| Imagen individual / Múltiples | `:8000` |
-| Restauración | `:5173` + `:8080` |
-| Reconstrucción / Clasificación | `:8000` |
+| Imagen individual / Multiples imagenes | `:5174` + `:8000` |
+| Restauracion | `:5174` + `:5173` |
+| Reconstruccion / Clasificacion | `:5174` + `:8000` |
 
-### Scripts (raíz)
+## Scripts
+
+En la raiz:
 
 ```bash
-npm install
-npm run dev       # Servidor de desarrollo (:5174)
-npm run build     # Build de producción
+npm run dev       # Servidor de desarrollo en :5174
+npm run build     # Build de produccion
 npm run preview   # Vista previa del build
 npm run lint      # ESLint
 ```
 
-## Docker (contenedor unificado  )
+En `web_app_lama/`:
 
-Un solo contenedor incluye la app principal, el editor IOPaint y su API. **No incluye** `rockart-platform-back (:8000).  
+```bash
+npm run dev       # Servidor de desarrollo en :5173
+npm run build     # Build de produccion
+npm run preview   # Vista previa del build
+npm run lint      # ESLint
+```
 
-| Puerto | Servicio   |
+## Docker
+
+Docker construye e instala solo los dos proyectos frontend. La imagen final es Node Alpine y sirve los builds estaticos en los puertos `5174` y `5173`.
+
+Build manual:
+
+```bash
+docker build -f Dockerfile -t pic-generator-front-stack --build-arg VITE_EDITOR_URL=http://localhost:5173 --build-arg VITE_BACKEND=http://127.0.0.1:8080 .
+docker run -p 5174:5174 -p 5173:5173 pic-generator-front-stack
+```
+
+Puertos publicados:
+
+| Puerto | Servicio |
 |--------|----------|
-| **5174** | App principal |
-| **5173** | Editor IOPaint (UI) |
-| **8080** | API IOPaint |
+| `5174` | App principal |
+| `5173` | Editor frontend |
 
-```bash
-docker compose up --build
-``aa`
+## API del backend externo
 
-Abre **http://localhost:5174**. Para generación, reconstrucción y clasificación, levanta **rockart-platform-back* aparte en el puerto 8000.  
+El frontend consume estos endpoints en `VITE_API_URL`, por defecto `http://localhost:8000`:
 
-### Build manuaaal
-
-```bash
-docker build -t pic-generator-stack .
-docker run --gpus all -p 5174:5174 -p 5173:5173 -p 8080:8080 pic-generator-stack
-```
-
-### Solución de problemas Docker
-
-**`npm error Missing script: "start"`** — imagen antigua con `CMD ["npm","start"]`. Limpia y reconstruye:
-
-```bash
-docker compose down
-docker rmi pic-generator-stack:latest -f
-docker compose build --no-cache
-docker compose up
-```
-
-Comprueba el comando de la imagen:
-
-```bash
-docker inspect pic-generator-stack:latest --format "{{.Config.Cmd}}"
-# Debe ser: [/bin/bash /app/start.sh]
-```
-
-Al arrancar bien verás: `Iniciando API IOPaint en :8080...`, `Iniciando app principal en :5174...`, etc
-
-.
-
-# API del backend externo (`rockart-platform-back`)
-  
-
-
-El frontend consume estos endpoints en `API_URL` (por defecto `:8000`):
-
-| Método | Ruta | Descripción |
+| Metodo | Ruta | Descripcion |
 |--------|------|-------------|
-| `POST` | `/generateSingle` | Una imagen GAN. Body JSON: `seed`, `truncation_psi`, `noise_mode`, `model`. |
-| `POST` | `/generateSeveral` | Varias imágenes. Body JSON: `number`, `truncation_psi`, `noise_mode`, `model`. |
-| `POST` | `/comparar` | Multipart: `imagen`, `model`. ONNX 256×256 vs 512×512. |
-| `POST` | `/clasificar` | Multipart: `imagen`. Clase pictograma/petroglifo + confianza. |
+| `POST` | `/generateSingle` | Genera una imagen GAN. Body JSON: `seed`, `truncation_psi`, `noise_mode`, `model`. |
+| `POST` | `/generateSeveral` | Genera varias imagenes. Body JSON: `number`, `truncation_psi`, `noise_mode`, `model`. |
+| `POST` | `/comparar` | Compara segmentacion ONNX 256x256 vs 512x512. Multipart: `imagen`, `model`. |
+| `POST` | `/clasificar` | Clasifica una imagen. Multipart: `imagen`. |
 
-### Valores de `model`
+Valores de `model`:
 
 | Uso | Valor API | Significado en UI |
-|-----|-----------|-----------------|
+|-----|-----------|-------------------|
 | GAN | `pictos512` | Pictogramas |
 | GAN | `pictos512_2` | Petroglifos |
 | ONNX (`/comparar`) | `mejor_modelo_dinamico` | Pictogramas |
 | ONNX (`/comparar`) | `modelo_dinamico_gab` | Petroglifos |
 
-El backend debe tener CORS habilitado para `http://localhost:5174`.
+El backend externo debe tener CORS habilitado para `http://localhost:5174`.
 
 ## Estructura del proyecto
 
 ```text
 rockart-platform-front/
-├── Dockerfile                 # Imagen unificada (app + IOPaint)
+├── dockerfile
 ├── docker-compose.yml
 ├── docker/
-│   └── start.sh               # Arranque de los 3 servicios en contenedor
+│   └── start.sh
 ├── public/
-│   └── logo/
 ├── src/
-│   ├── ap──i/
-│   │   └── mageApi.js        # Llamadas a rockart-platform-back
-│   ├── comp  onents/
-│   │   ├──── AppTopBar/
-│   │   ├── ClassificationTab/
-│   │   ├── GenerationControls/
-│   │   ├── ImageCard/
-│   │   ├── MultipleImagesResult/
-│   │   ├── ReconstructionTab/
-│   │   ├── RestorationEditor/ # iframe → EDITOR_URL
-│   │   ├── SidebarNav/
-│   │   ├── SingleImageResult/
-│   │   ├── TabInstructions/
-│   │   └── ui/
+│   ├── api/
+│   ├── components/
 │   ├── constants/
-│   │   ├── config.js          # URLs, modelos GAN/ONNX
-│   │   └── navModes.js        # Etiquetas e instrucciones por pestaña
 │   ├── hooks/
-│   │   └── useImageGenerator.js
 │   ├── utils/
-│   │   └── imageUtils.js
 │   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-└── web_app_lama/              # Editor IOPaint (parte del repo)
-    ├── docker back-end/       # Definición original de la API IOPaint
+│   └── main.jsx
+└── web_app_lama/
+    ├── public/
     ├── src/
-    └── package.json
+    ├── package.json
+    └── vite.config.ts
 ```
 
-## Créditos
+## Creditos
 
-- [StyleGAN2-ADA-PyTorch](https://github.com/dvschultz/stylegan2-ada-pytorch) — generación GAN
-- [IOPaint](https://github.com/Sanster/IOPaint) — restauración/inpainting (`web_app_lama`)
+- StyleGAN2-ADA-PyTorch: generacion GAN.

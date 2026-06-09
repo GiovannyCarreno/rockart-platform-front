@@ -2,9 +2,10 @@ import * as React from "react"
 import io from "socket.io-client"
 import { Progress } from "./ui/progress"
 import { useStore } from "@/lib/states"
+import { BACKEND_URL } from "@/lib/api"
 
 export const API_ENDPOINT = import.meta.env.DEV
-  ? import.meta.env.VITE_BACKEND
+  ? BACKEND_URL
   : ""
 const socket = io(API_ENDPOINT)
 

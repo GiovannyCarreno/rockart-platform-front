@@ -10,7 +10,9 @@ import { Settings } from "@/lib/states"
 import { convertToBase64, srcToFile } from "@/lib/utils"
 import axios from "axios"
 
-export const API_ENDPOINT = import.meta.env.VITE_BACKEND + "/api/v1"
+export const BACKEND_URL =
+  import.meta.env.VITE_BACKEND ?? "http://127.0.0.1:8080"
+export const API_ENDPOINT = `${BACKEND_URL}/api/v1`
 
 const api = axios.create({
   baseURL: API_ENDPOINT,

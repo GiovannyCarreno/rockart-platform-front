@@ -6,6 +6,8 @@ dist
 web_app_lama/node_modules
 web_app_lama/dist
 web_app_lama/.git
+web_app_lama/.env
+web_app_lama/docker back-end
 
 **/__pycache__
 **/.venv

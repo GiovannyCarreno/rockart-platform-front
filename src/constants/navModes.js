@@ -4,7 +4,7 @@
 export const MODE_LABELS = {
   single: 'Imagen individual',
   multiple: 'Múltiples imágenes',
-  restoration: 'Restauración de pictogramas',
+  restoration: 'Restauración',
   reconstruction: 'Reconstrucción',
   classification: 'Clasificación',
 };
